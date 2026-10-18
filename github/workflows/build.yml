@@ -1,0 +1,29 @@
+name: Build APK
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Setup Godot
+        run: |
+          wget https://github.com/godotengine/godot-builds/releases/download/4.4-stable/Godot_v4.4-stable_linux.x86_64.zip
+          unzip Godot_v4.4-stable_linux.x86_64.zip
+          chmod +x Godot_v4.4-stable_linux.x86_64
+      - name: Setup Templates
+        run: |
+          mkdir -p ~/.local/share/godot/export_templates/4.4.stable
+          wget https://github.com/godotengine/godot-builds/releases/download/4.4-stable/Godot_v4.4-stable_export_templates.tpz
+          unzip Godot_v4.4-stable_export_templates.tpz
+          mv templates/* ~/.local/share/godot/export_templates/4.4.stable/
+      - name: Build APK
+        run: |
+          ./Godot_v4.4-stable_linux.x86_64 --headless --export-release "Android" PlagueDoctor.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PlagueDoctor-APK
+          path: PlagueDoctor.apk
